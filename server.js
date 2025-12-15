@@ -8,10 +8,18 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-    origin: '*', // Allow all origins (Netlify, Localhost, etc.)
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type']
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Manual CORS fallback
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    next();
+});
 app.use(express.json());
 
 const razorpay = new Razorpay({
