@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
 });
 
 const LICENSE_TIERS = {
-    DAILY: { code: 'DALY', name: 'Daily Plan', duration: 1, price: 4900 },
+    DAILY: { code: 'DALY', name: 'Daily Plan', duration: 1, price: 100 }, // 1 Rupee for testing
     WEEKLY: { code: 'WEEK', name: 'Weekly Plan', duration: 7, price: 19900 },
     MONTHLY: { code: 'MNTH', name: 'Monthly Plan', duration: 30, price: 49900 }
 };
