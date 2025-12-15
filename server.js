@@ -74,7 +74,7 @@ app.post('/create-order', async (req, res) => {
         res.json({ success: true, orderId: order.id, keyId: process.env.RAZORPAY_KEY_ID });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to create order' });
+        res.status(500).json({ error: error.message, details: error });
     }
 });
 
