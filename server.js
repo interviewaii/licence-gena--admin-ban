@@ -28,9 +28,9 @@ const razorpay = new Razorpay({
 });
 
 const LICENSE_TIERS = {
-    DAILY: { code: 'DALY', name: 'Daily Plan', duration: 1, price: 100 }, // 1 Rupee for testing
-    WEEKLY: { code: 'WEEK', name: 'Weekly Plan', duration: 7, price: 19900 },
-    MONTHLY: { code: 'MNTH', name: 'Monthly Plan', duration: 30, price: 49900 }
+    DAILY: { code: 'DALY', name: 'Daily Plan', duration: 1, price: parseInt(process.env.DAILY_PRICE) || 4900 },
+    WEEKLY: { code: 'WEEK', name: 'Weekly Plan', duration: 7, price: parseInt(process.env.WEEKLY_PRICE) || 19900 },
+    MONTHLY: { code: 'MNTH', name: 'Monthly Plan', duration: 30, price: parseInt(process.env.MONTHLY_PRICE) || 49900 }
 };
 
 function generateLicenseKey(deviceId, tierCode, expiryDate) {
