@@ -44,6 +44,7 @@ function generateChecksum(tier, deviceHash, expiry) {
 }
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/', (req, res) => res.send('Interview AI Backend is Running! 🚀'));
 
 app.post('/create-order', async (req, res) => {
     try {
