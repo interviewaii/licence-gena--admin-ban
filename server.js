@@ -379,8 +379,15 @@ app.get('/api/admin/licenses', (req, res) => {
     }
 });
 
+// ── APP: Health Check ──
 app.get('/health', (req, res) => res.json({ status: 'ok', database: 'json', session: 'ready' }));
-app.get('/', (req, res) => res.send('Interview AI Backend is Running! 🚀'));
+
+// ── APP: Redirect root to landing page ──
+app.get('/', (req, res) => res.redirect('/index.html'));
+
+// ── ADMIN: Easy shortcuts ──
+app.get('/admin', (req, res) => res.redirect('/admin.html'));
+app.get('/license-gen', (req, res) => res.redirect('/license-generator.html'));
 
 // Get current pricing
 app.get('/api/pricing', (req, res) => {
@@ -462,15 +469,14 @@ app.get('/api/admin/stats', (req, res) => {
     try {
         const analytics = analyticsOps.getStats();
 
-        // Get all transactions with user details
-        // We filter for successful transactions to show actual purchases
-        const transactions = transactionOps.getAll()
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
+        // Get all licenses for counting
+        const licenses = licenseOps.getAll();
 
         res.json({
             success: true,
             analytics,
-            users: transactions
+            users: transactions,
+            licenseCount: licenses.length
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

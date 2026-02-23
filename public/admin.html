@@ -232,6 +232,31 @@
                 </div>
             </div>
 
+            <!-- License Management (NEW) -->
+            <div class="card mb-20">
+                <h2 style="margin-bottom: 20px;">🔑 License Management</h2>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: rgba(255,255,255,0.05);">
+                                <th style="padding: 12px; text-align: left;">Date</th>
+                                <th style="padding: 12px; text-align: left;">License Key</th>
+                                <th style="padding: 12px; text-align: left;">Tier</th>
+                                <th style="padding: 12px; text-align: left;">Status</th>
+                                <th style="padding: 12px; text-align: left;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="licenseTableBody">
+                            <tr>
+                                <td colspan="5"
+                                    style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- System Tools -->
             <div class="card mb-20">
                 <h2 style="margin-bottom: 20px;">🛠️ System Tools</h2>
@@ -265,6 +290,7 @@
         let filteredTransactions = [];
         let currentFilter = 'all';
         let currentPage = 1;
+        let lastStatsData = null; // Store global stats data
         const itemsPerPage = 10;
 
         // Simple client-side check
@@ -314,6 +340,7 @@
 
                 if (data.success) {
                     allTransactions = data.users; // Store all transactions
+                    lastStatsData = data; // Store global stats
 
                     // Set static download stats (not filtered by time currently)
                     document.getElementById('statDemoDownloads').textContent = data.analytics.demo_downloads || 0;
@@ -324,6 +351,80 @@
                 }
             } catch (error) {
                 console.error('Failed to load stats:', error);
+            }
+
+            // Load Licenses (NEW)
+            loadLicenses();
+        }
+
+        async function loadLicenses() {
+            const tbody = document.getElementById('licenseTableBody');
+            try {
+                const response = await fetch('/api/admin/licenses');
+                const data = await response.json();
+
+                if (data.success && data.licenses) {
+                    if (data.licenses.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">No licenses generated yet.</td></tr>';
+                        return;
+                    }
+
+                    // Sort by newest first
+                    const sorted = data.licenses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                    tbody.innerHTML = sorted.map(license => {
+                        const isBanned = license.status === 'banned';
+                        const statusColor = isBanned ? '#f44336' : '#4caf50';
+                        return `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 12px;">${new Date(license.createdAt).toLocaleDateString()}</td>
+                                <td style="padding: 12px; font-family: monospace;">${license.licenseKey}</td>
+                                <td style="padding: 12px;">${license.tier}</td>
+                                <td style="padding: 12px;">
+                                    <span style="background: ${statusColor}20; color: ${statusColor}; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; border: 1px solid ${statusColor}40;">
+                                        ${license.status.toUpperCase()}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <button class="btn ${isBanned ? 'btn-secondary' : 'btn-error'}" 
+                                            style="padding: 4px 12px; font-size: 12px; background: ${isBanned ? '#4caf50' : '#f44336'}20; color: ${isBanned ? '#4caf50' : '#f44336'};"
+                                            onclick="toggleLicenseBan('${license.licenseKey}', ${isBanned})">
+                                        ${isBanned ? '✅ Unban' : '🚫 Ban Key'}
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load licenses:', error);
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #f44336;">Error loading licenses</td></tr>';
+            }
+        }
+
+        async function toggleLicenseBan(key, currentlyBanned) {
+            const endpoint = currentlyBanned ? '/api/admin/unban-license' : '/api/admin/ban-license';
+            const action = currentlyBanned ? 'unban' : 'ban';
+
+            if (!confirm(`Are you sure you want to ${action} this license key?\n\n${key}`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ licenseKey: key })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`✅ License ${action}ned successfully!`);
+                    loadLicenses();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert(`❌ Network error: ${error.message}`);
             }
         }
 
@@ -378,18 +479,20 @@
                 return matchesTime && matchesStatus;
             });
 
-            updateStatsUI();
+            updateStatsUI(lastStatsData);
             renderTable();
         }
 
-        function updateStatsUI() {
+        function updateStatsUI(data) {
             // Update stats cards based on filtered data
-            // Note: For revenue/users/licenses we might want to only count 'success' status
             const successfulTransactions = filteredTransactions.filter(t => t.status === 'success');
 
             document.getElementById('statUsers').textContent = successfulTransactions.length;
-            document.getElementById('statLicenses').textContent = successfulTransactions.length;
-            document.getElementById('statTransactions').textContent = filteredTransactions.length; // Count all attempts
+
+            // Use server-provided license count if available, otherwise fallback to successful transactions
+            document.getElementById('statLicenses').textContent = data && data.licenseCount !== undefined ? data.licenseCount : successfulTransactions.length;
+
+            document.getElementById('statTransactions').textContent = filteredTransactions.length;
 
             const totalRevenue = successfulTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
             document.getElementById('statRevenue').textContent = (totalRevenue / 100).toLocaleString('en-IN');
