@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase License - Interview Round AI</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        /* Custom styles for purchase page */
+        .purchase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .benefits-section {
+            padding-right: 20px;
+        }
+
+        .benefit-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .plan-option {
+            display: block;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .plan-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .plan-details {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-option:hover .plan-details {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .plan-option input[type="radio"]:checked~.plan-details {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 1px #667eea;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #667eea;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 0 0 0 10px;
+        }
+
+        .price-large {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .price-period {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 400;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+        }
+
+        .admin-link {
+            color: rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .admin-link:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        @media (max-width: 900px) {
+            .purchase-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits-section {
+                padding-right: 0;
+                margin-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="logo.jpg" alt="Logo"
+                        style="height: 32px; vertical-align: middle; margin-right: 8px; border-radius: 6px;">
+                    Interview Round AI
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button id="currencyToggle" class="btn btn-secondary" onclick="toggleCurrency()"
+                        style="padding: 8px 16px; font-size: 14px;">Show in USD ($)</button>
+                    <a href="/" class="btn btn-secondary">← Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 40px;">
+
+        <!-- Success Message (Hidden by default) -->
+        <div id="successContainer" class="card mb-20 hidden"
+            style="text-align: center; border-color: #48bb78; max-width: 600px; margin: 0 auto;">
+            <div style="font-size: 64px; margin-bottom: 20px;">🎉</div>
+            <h2 style="color: #48bb78; margin-bottom: 10px; font-size: 32px;">Payment Successful!</h2>
+            <p style="color: rgba(255,255,255,0.8); margin-bottom: 30px; font-size: 18px;">You are now a Pro user. Here
+                is your key:</p>
+
+            <div
+                style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 1px dashed rgba(255,255,255,0.2);">
+                <p
+                    style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-bottom: 12px;">
+                    LICENSE KEY</p>
+                <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                    <code id="licenseKeyDisplay"
+                        style="font-family: 'Courier New', monospace; font-size: 24px; color: #667eea; font-weight: 800; letter-spacing: 1px;"></code>
+                    <button onclick="copyLicenseKey()" class="btn btn-secondary"
+                        style="padding: 8px 16px; font-size: 14px;">📋 Copy</button>
+                </div>
+            </div>
+
+            <div class="alert alert-info" style="text-align: left; font-size: 15px;">
+                <strong>🚀 How to Activate:</strong>
+                <ol style="margin-top: 10px; padding-left: 20px; line-height: 1.6;">
+                    <li>Copy the license key above.</li>
+                    <li>Open the <strong>Interview Round AI</strong> desktop app.</li>
+                    <li>Paste the key when prompted.</li>
+                </ol>
+                <p style="margin-top: 15px; font-size: 14px; opacity: 0.8;">A confirmation email has been sent to
+                    <strong id="sentEmailDisplay" style="color: #fff;"></strong>.
+                </p>
+            </div>
+
+            <a href="/" class="btn btn-primary" style="margin-top: 20px; width: 100%;">Return to Home</a>
+        </div>
+
+        <!-- Main Purchase Flow -->
+        <div id="purchaseFormContainer" class="purchase-grid">
+
+            <!-- Left Column: Benefits -->
+            <div class="benefits-section">
+                <h1 style="font-size: 42px; font-weight: 800; line-height: 1.1; margin-bottom: 20px;">
+                    Unlock Your <br><span style="color: #667eea;">Interview Superpowers</span>
+                </h1>
+                <p style="font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 40px;">
+                    Get the unfair advantage with our Pro plans. Undetectable AI assistance that helps you crack any
+                    interview.
+                </p>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <div>
+                        <h3 style="margin-bottom: 5px;">Unlimited Responses</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px;">No more limits. Get help with every
+                            single question.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🧠</div>
+                    <div>
+                        <h3 style="margin-bottom: 5px;">Advanced Models</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px;">Access to superior AI models for
+                            deeper, more accurate answers.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">🛡️</div>
+                    <div>
+                        <h3 style="margin-bottom: 5px;">100% Undetectable</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px;">Designed to be invisible to screen
+                            sharing and proctoring software.</p>
+                    </div>
+                </div>
+
+                <div class="benefit-item">
+                    <div class="benefit-icon">💎</div>
+                    <div>
+                        <h3 style="margin-bottom: 5px;">Priority Support</h3>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 14px;">Direct access to our engineering team
+                            for any issues.</p>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top: 40px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+                    <p style="font-style: italic; color: rgba(255,255,255,0.9);">"I landed a job at Amazon thanks to
+                        this tool. The answers were spot on and nobody noticed a thing!"</p>
+                    <p style="margin-top: 10px; font-weight: 600; font-size: 14px;">— Sarah K., Software Engineer</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Form -->
+            <div>
+                <div class="card">
+                    <h2 style="margin-bottom: 25px; font-size: 24px;">Complete Purchase</h2>
+
+                    <!-- Plan Selection -->
+                    <div style="margin-bottom: 30px;">
+                        <label style="margin-bottom: 15px; display: block;">Select Plan</label>
+                        <div style="display: grid; gap: 15px;">
+
+                            <label class="plan-option" data-tier="WEEKLY">
+                                <input type="radio" name="plan" value="WEEKLY" checked>
+                                <div class="plan-details">
+                                    <div class="popular-badge">MOST POPULAR</div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">Weekly
+                                                Pro</div>
+                                            <div style="font-size: 13px; color: rgba(255,255,255,0.6);">7 Days Access
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div class="price-large"><span id="price-display-weekly">₹199</span></div>
+                                            <div class="price-period">/week</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="plan-option" data-tier="MONTHLY">
+                                <input type="radio" name="plan" value="MONTHLY">
+                                <div class="plan-details">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">Monthly
+                                                Elite</div>
+                                            <div style="font-size: 13px; color: rgba(255,255,255,0.6);">30 Days Access
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div class="price-large"><span id="price-display-monthly">₹499</span></div>
+                                            <div class="price-period">/month</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="plan-option" data-tier="DAILY">
+                                <input type="radio" name="plan" value="DAILY">
+                                <div class="plan-details">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 18px; margin-bottom: 4px;">Daily
+                                                Starter</div>
+                                            <div style="font-size: 13px; color: rgba(255,255,255,0.6);">24 Hours Access
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div class="price-large"><span id="price-display-daily">₹49</span></div>
+                                            <div class="price-period">/day</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- User Details -->
+                    <div style="margin-bottom: 30px;">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="userName" placeholder="e.g. John Doe" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="userEmail" placeholder="e.g. john@example.com" required>
+                            <small
+                                style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 4px; display: block;">
+                                We'll send the license key to this email.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Device ID <span
+                                    style="color: rgba(255,255,255,0.4); font-weight: 400; font-size: 12px;">(from
+                                    App)</span></label>
+                            <input type="text" id="deviceId" placeholder="e.g. 1A2B3C4D" required
+                                style="font-family: monospace; letter-spacing: 1px;">
+                            <small
+                                style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 4px; display: block;">
+                                Open Interview Round AI app to find your Device ID.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Errors & Loading -->
+                    <div id="errorMessage" class="alert alert-error hidden"></div>
+                    <div id="loadingMessage" class="alert alert-info hidden">
+                        <div class="spinner" style="width: 24px; height: 24px; margin: 0 10px 0 0; border-width: 2px;">
+                        </div>
+                        Processing secure payment...
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button class="btn btn-primary"
+                        style="width: 100%; font-size: 18px; padding: 16px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 10px;"
+                        onclick="proceedToPayment()">
+                        <span>💳</span> Pay Securely
+                    </button>
+
+                    <div
+                        style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 15px; opacity: 0.5;">
+                        <span style="font-size: 20px;">🔒</span>
+                        <span style="font-size: 20px;">🛡️</span>
+                        <span style="font-size: 20px;">💳</span>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; color: rgba(255,255,255,0.4); font-size: 12px;">
+                        Secured by Razorpay. 100% Money Back Guarantee.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2025 Interview Round AI. All rights reserved.</p>
+            <div style="margin-top: 15px;">
+                <a href="/admin.html" class="admin-link">Admin Login</a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        let pricingData = {};
+        let currentCurrency = 'INR';
+
+        // Load pricing on page load
+        async function loadPricing() {
+            try {
+                const response = await fetch('/api/pricing');
+                const data = await response.json();
+                if (data.success) {
+                    pricingData = data.pricing;
+                    currentCurrency = data.pricing.currency || 'INR';
+                    renderPrices();
+                }
+            } catch (error) {
+                console.error('Failed to load pricing:', error);
+            }
+        }
+
+        function toggleCurrency() {
+            currentCurrency = currentCurrency === 'INR' ? 'USD' : 'INR';
+            renderPrices();
+        }
+
+        function renderPrices() {
+            const isINR = currentCurrency === 'INR';
+            const rate = pricingData.exchange_rate || 85;
+            const symbol = isINR ? '₹' : '$';
+
+            const formatPrice = (priceInPaise) => {
+                if (isINR) return (priceInPaise / 100).toFixed(0);
+                return ((priceInPaise / 100) / rate).toFixed(2);
+            };
+
+            if (document.getElementById('price-display-daily')) document.getElementById('price-display-daily').textContent = symbol + formatPrice(pricingData.daily);
+            if (document.getElementById('price-display-weekly')) document.getElementById('price-display-weekly').textContent = symbol + formatPrice(pricingData.weekly);
+            if (document.getElementById('price-display-monthly')) document.getElementById('price-display-monthly').textContent = symbol + formatPrice(pricingData.monthly);
+
+            if (document.getElementById('currencyToggle')) document.getElementById('currencyToggle').textContent = isINR ? 'Show in USD ($)' : 'Show in INR (₹)';
+        }
+
+        // Check URL parameters for pre-selected plan
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan');
+            if (plan) {
+                const radio = document.querySelector(`input[name="plan"][value="${plan.toUpperCase()}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
+
+        async function proceedToPayment() {
+            const userName = document.getElementById('userName').value.trim();
+            const userEmail = document.getElementById('userEmail').value.trim();
+            const deviceId = document.getElementById('deviceId').value.trim();
+            const selectedPlan = document.querySelector('input[name="plan"]:checked');
+
+            // Validation
+            if (!userName) {
+                showError('Please enter your name');
+                return;
+            }
+            if (!userEmail || !userEmail.includes('@')) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            if (!deviceId) {
+                showError('Please enter your Device ID');
+                return;
+            }
+            if (!selectedPlan) {
+                showError('Please select a plan');
+                return;
+            }
+
+            const tier = selectedPlan.value;
+            const amount = pricingData[tier.toLowerCase()];
+
+            // Show loading
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('loadingMessage').classList.remove('hidden');
+
+            try {
+                // Create order
+                const orderResponse = await fetch('/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tier,
+                        deviceId,
+                        userEmail,
+                        userName
+                    })
+                });
+
+                const orderData = await orderResponse.json();
+
+                if (!orderData.success) {
+                    throw new Error(orderData.error || 'Failed to create order');
+                }
+
+                // Hide loading
+                document.getElementById('loadingMessage').classList.add('hidden');
+
+                // Open Razorpay checkout
+                const options = {
+                    key: orderData.keyId,
+                    amount: amount,
+                    currency: 'INR',
+                    name: 'Interview AI',
+                    description: `${tier} Plan License`,
+                    order_id: orderData.orderId,
+                    handler: async function (response) {
+                        await verifyPayment(response, tier, deviceId, userEmail, userName);
+                    },
+                    prefill: {
+                        name: userName,
+                        email: userEmail
+                    },
+                    theme: {
+                        color: '#667eea'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            document.getElementById('loadingMessage').classList.add('hidden');
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch (error) {
+                document.getElementById('loadingMessage').classList.add('hidden');
+                showError(error.message);
+            }
+        }
+
+        async function verifyPayment(razorpayResponse, tier, deviceId, userEmail, userName) {
+            document.getElementById('loadingMessage').classList.remove('hidden');
+
+            try {
+                const response = await fetch('/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: razorpayResponse.razorpay_order_id,
+                        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                        razorpay_signature: razorpayResponse.razorpay_signature,
+                        tier,
+                        deviceId,
+                        userEmail,
+                        userName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show success state inline
+                    document.getElementById('purchaseFormContainer').classList.add('hidden');
+                    document.getElementById('successContainer').classList.remove('hidden');
+
+                    document.getElementById('licenseKeyDisplay').textContent = data.licenseKey;
+                    document.getElementById('sentEmailDisplay').textContent = userEmail;
+
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    throw new Error(data.error || 'Payment verification failed');
+                }
+
+            } catch (error) {
+                document.getElementById('loadingMessage').classList.add('hidden');
+                showError('Payment verification failed: ' + error.message);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        function copyLicenseKey() {
+            const key = document.getElementById('licenseKeyDisplay').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = document.querySelector('button[onclick="copyLicenseKey()"]');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = originalText, 2000);
+            });
+        }
+
+        // Initialize
+        loadPricing();
+        checkUrlParams();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Round AI - Master Your Interviews</title>
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #111111;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --primary: #ffffff;
+            --accent: #667eea;
+            --border: #27272a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .currency-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .currency-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #e5e5e5;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 100px 0 60px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin: 80px 0;
+            text-align: center;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .step-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        /* Pricing */
+        .pricing {
+            margin: 100px 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .price-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .price-card.popular {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .price-tag {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+
+        .price-period {
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 30px 0;
+            flex-grow: 1;
+        }
+
+        .features-list li {
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check {
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 80px;
+        }
+
+        /* Responsive Demo Grid */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .hero-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="logo.jpg" alt="Logo"
+                    style="height: 40px; vertical-align: middle; margin-right: 10px; border-radius: 8px;">
+                Interview Round AI
+            </div>
+            <!-- Admin button is hidden. Access via /admin.html -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="currencyToggle" class="currency-toggle" onclick="toggleCurrency()">Show in USD ($)</button>
+                <a href="/purchase.html" class="btn btn-primary">Get Pro</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div
+                style="color: var(--accent); font-weight: 600; margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase;">
+                Undetectable AI • Invisible for Interviews</div>
+            <h1>Master Your Interviews<br>with AI Confidence</h1>
+            <p>No complex setup. Just download, launch, and start acing your interviews with real-time AI assistance.
+            </p>
+
+            <div class="hero-btns">
+                <button onclick="downloadDemo()" class="btn btn-outline">
+                    📥 Download Demo
+                </button>
+                <button onclick="downloadApp('pro')" class="btn btn-primary">
+                    ⚡ Download Pro App
+                </button>
+                <button onclick="downloadApp('elite')" class="btn btn-primary"
+                    style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border: none;">
+                    🏆 Download Elite App
+                </button>
+            </div>
+
+
+
+            <div class="demo-grid">
+                <div
+                    style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+                    <img src="demo-1.png" alt="Candidate View" style="width: 100%; display: block;">
+                    <div style="padding: 24px;">
+                        <h3 style="font-size: 24px; margin-bottom: 8px;">Candidate</h3>
+                        <div style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">Gets AI assistance
+                            during interviews</div>
+                        <p style="color: var(--text-muted); font-size: 15px;">
+                            Interviewroundai provides real-time assistance to candidates during interviews, helping them
+                            answer questions confidently and professionally.
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+                    <img src="demo-2.png" alt="Interviewer View" style="width: 100%; display: block;">
+                    <div style="padding: 24px;">
+                        <h3 style="font-size: 24px; margin-bottom: 8px;">Interviewer</h3>
+                        <div style="color: var(--accent); font-weight: 600; margin-bottom: 12px;">Conducts professional
+                            interviews</div>
+                        <p style="color: var(--text-muted); font-size: 15px;">
+                            Interviewers conduct thorough assessments while candidates receive seamless AI assistance
+                            that remains completely undetectable.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="steps">
+            <div class="step-card">
+                <div class="step-icon">📥</div>
+                <h3>1. No Login Required</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Download .exe and buy license key directly. No
+                    account creation needed.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon">🎁</div>
+                <h3>2. Free Trial</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Get 10 free responses to test all features.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon">💳</div>
+                <h3>3. Go Pro</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Subscribe to unlock unlimited access and advanced
+                    features.</p>
+            </div>
+        </section>
+
+        <section class="container" style="margin: 100px auto;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+                <div>
+                    <img src="stealth-feature.png" alt="Stealth Mode Feature"
+                        style="width: 100%; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                </div>
+                <div>
+                    <h2 style="font-size: 36px; margin-bottom: 20px; line-height: 1.2;">Enterprise Grade Privacy</h2>
+                    <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 30px;">
+                        Customizable for internal company environments, works behind the firewall and doesn’t appear in
+                        the control panel.
+                    </p>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@interviewroundai.com" target="_blank"
+                        class="btn btn-outline">
+                        Contact via Gmail
+                    </a>
+                    <p style="margin-top: 15px; color: var(--text-muted); font-size: 15px;">
+                        Or email us at: <strong
+                            style="color: var(--text); user-select: all;">support@interviewroundai.com</strong>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+
+        <section class="pricing">
+            <h2 style="text-align: center; font-size: 36px; margin-bottom: 60px;">Simple, Transparent Pricing</h2>
+
+            <div class="pricing-grid">
+                <!-- Daily Plan (Mapped to Starter) -->
+                <div class="price-card">
+                    <h3>Starter</h3>
+                    <div class="price-tag">
+                        <span id="price-display-daily">₹49</span>
+                        <span class="price-period"> / day</span>
+                    </div>
+                    <p style="color: var(--text-muted);">Perfect for a single interview</p>
+                    <ul class="features-list">
+                        <li><span class="check">✓</span> 24 Hours Access</li>
+                        <li><span class="check">✓</span> Unlimited Responses</li>
+                        <li><span class="check">✓</span> Basic Support</li>
+                    </ul>
+                    <a href="/purchase.html?plan=daily" class="btn btn-outline" style="text-align: center;">Get
+                        Started</a>
+                </div>
+
+                <!-- Weekly Plan (Mapped to Pro) -->
+                <div class="price-card popular">
+                    <div
+                        style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                        MOST POPULAR</div>
+                    <h3>Pro Weekly</h3>
+                    <div class="price-tag">
+                        <span id="price-display-weekly">₹199</span>
+                        <span class="price-period"> / week</span>
+                    </div>
+                    <p style="color: var(--text-muted);">Best for active job seekers</p>
+                    <ul class="features-list">
+                        <li><span class="check">✓</span> 7 Days Access</li>
+                        <li><span class="check">✓</span> Unlimited Responses</li>
+                        <li><span class="check">✓</span> Priority Support</li>
+                        <li><span class="check">✓</span> Advanced Analysis</li>
+                        <li><span class="check">✓</span> 4 API Integrated</li>
+                        <li><span class="check">✓</span> Crack mid-level exam, crack startup</li>
+                        <li><span class="check">✓</span> Responses feel natural and human, not robotic or AI-generated
+                        </li>
+                    </ul>
+                    <a href="/purchase.html?plan=weekly" class="btn btn-primary" style="text-align: center;">Start Free
+                        Trial</a>
+                </div>
+
+                <!-- Monthly Plan (Mapped to Lifetime/Elite) -->
+                <div class="price-card">
+                    <h3>Elite Monthly</h3>
+                    <div class="price-card">
+                        <h3>Elite Monthly</h3>
+                        <div class="price-tag">
+                            <span id="price-display-monthly">₹499</span>
+                            <span class="price-period"> / month</span>
+                        </div>
+                        <p style="color: var(--text-muted);">Best value for long-term success</p>
+                        <ul class="features-list">
+                            <li><span class="check">✓</span> 30 Days Access</li>
+                            <li><span class="check">✓</span> Everything in Pro</li>
+                            <li><span class="check">✓</span> Dedicated Manager</li>
+                            <li><span class="check">✓</span> 6 API Integrated</li>
+                            <li><span class="check">✓</span> Helps you solve FAANG-level questions and prepares you to
+                                crack
+                                top MNC exams with confidence</li>
+                            <li><span class="check">✓</span> Responses feel natural and human, not robotic or
+                                AI-generated
+                            </li>
+                        </ul>
+                        <a href="/purchase.html?plan=monthly" class="btn btn-outline" style="text-align: center;">Get
+                            Access</a>
+                    </div>
+                </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Interview AI. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 14px;">Contact Support: +91 94207 00711</p>
+        <div style="margin-top: 15px;">
+            <a href="/admin.html" style="color: rgba(255, 255, 255, 0.2); text-decoration: none; font-size: 12px;">Admin
+                Login</a>
+        </div>
+    </footer>
+
+    <script>
+        // Default URLs (will be updated from API)
+        let downloadUrls = {
+            demo: 'https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.1/Interview-AI-Setup.exe',
+            pro: 'https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.0-pro/Interview-Pro-version.exe',
+            elite: 'https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.0-pro/Interview-Elite-version.exe'
+        };
+
+        let currentCurrency = 'INR';
+        let pricingData = {};
+
+        async function loadPricing() {
+            try {
+                const response = await fetch('/api/pricing');
+                const data = await response.json();
+                if (data.success) {
+                    pricingData = data.pricing;
+                    currentCurrency = data.pricing.currency || 'INR';
+                    renderPrices();
+
+                    if (data.pricing.demo_url) downloadUrls.demo = data.pricing.demo_url;
+                    if (data.pricing.pro_url) downloadUrls.pro = data.pricing.pro_url;
+                    if (data.pricing.elite_url) downloadUrls.elite = data.pricing.elite_url;
+
+                    updateDownloadLinks();
+                }
+            } catch (error) {
+                console.error('Failed to load pricing:', error);
+            }
+        }
+
+        function toggleCurrency() {
+            currentCurrency = currentCurrency === 'INR' ? 'USD' : 'INR';
+            renderPrices();
+        }
+
+        function renderPrices() {
+            const isINR = currentCurrency === 'INR';
+            const rate = pricingData.exchange_rate || 85;
+            const symbol = isINR ? '₹' : '$';
+
+            const formatPrice = (priceInPaise) => {
+                if (isINR) return (priceInPaise / 100).toFixed(0);
+                return ((priceInPaise / 100) / rate).toFixed(2);
+            };
+
+            document.getElementById('price-display-daily').textContent = symbol + formatPrice(pricingData.daily);
+            document.getElementById('price-display-weekly').textContent = symbol + formatPrice(pricingData.weekly);
+            document.getElementById('price-display-monthly').textContent = symbol + formatPrice(pricingData.monthly);
+
+            document.getElementById('currencyToggle').textContent = isINR ? 'Show in USD ($)' : 'Show in INR (₹)';
+        }
+
+
+        async function trackClick(type) {
+            try {
+                await fetch('/api/track-click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type })
+                });
+            } catch (error) {
+                console.error('Failed to track click:', error);
+            }
+        }
+
+        async function downloadApp(type) {
+            // Track click
+            trackClick(type);
+            // Redirect to URL
+            if (downloadUrls[type]) {
+                window.location.href = downloadUrls[type];
+            }
+        }
+
+        async function downloadDemo() {
+            downloadApp('demo');
+        }
+
+        loadPricing();
+    </script>
+</body>
+
+</html>

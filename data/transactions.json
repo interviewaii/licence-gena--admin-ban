@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "razorpayOrderId": "order_demo_123",
+    "razorpayPaymentId": "pay_demo_123",
+    "razorpaySignature": "sig_demo_123",
+    "amount": 4900,
+    "tier": "DAILY",
+    "status": "success",
+    "createdAt": "2025-12-17T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "userId": 2,
+    "razorpayOrderId": "order_RsduzikU1BVY79",
+    "razorpayPaymentId": "pay_RsdvtZNrmAj7zr",
+    "razorpaySignature": "5fc394a7d7912a4de081545cd2745375773eb4e41b564682437cd124c73a25f9",
+    "amount": 69900,
+    "tier": "WEEKLY",
+    "status": "success",
+    "createdAt": "2025-12-17T10:18:02.633Z"
+  },
+  {
+    "id": 3,
+    "userId": 3,
+    "razorpayOrderId": "order_RsiZqBQy3xziDk",
+    "razorpayPaymentId": "pay_Rsib4lLQuimAko",
+    "razorpaySignature": "7f3f9bd1b3d5ade0e5d735f3adec10eabd61c251a2b2ea691141afdcd91df51b",
+    "amount": 29900,
+    "tier": "DAILY",
+    "status": "success",
+    "createdAt": "2025-12-17T14:51:29.301Z"
+  },
+  {
+    "id": 4,
+    "userId": 4,
+    "razorpayOrderId": "order_RsnXr1LSVSrWIE",
+    "razorpayPaymentId": "pay_RsnYlrjjnm1m1w",
+    "razorpaySignature": "2bc5096d2209bba8600633b0317c3e5e10cedf6b244edb2fea7d3369656752c1",
+    "amount": 19900,
+    "tier": "WEEKLY",
+    "status": "success",
+    "createdAt": "2025-12-17T19:43:04.412Z"
+  }
+]

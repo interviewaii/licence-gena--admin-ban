@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview AI - License Generator</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
+        .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); border: 1px solid #334155; }
+        h1 { margin-top: 0; color: #f1f5f9; font-size: 24px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #94a3b8; font-size: 14px; }
+        input, select { width: 100%; padding: 10px 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; font-size: 15px; color: #f1f5f9; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: #3b82f6; }
+        button { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #2563eb; }
+        #result { margin-top: 25px; display: none; }
+        .key-display { background: #022c22; border: 1px solid #16a34a; color: #4ade80; padding: 18px; border-radius: 8px; font-family: monospace; font-size: 22px; text-align: center; letter-spacing: 2px; font-weight: bold; }
+        .copy-btn { margin-top: 10px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 10px; font-size: 14px; }
+        .copy-btn:hover { background: #334155; }
+        .badge { display: inline-block; margin-bottom: 16px; padding: 4px 10px; background: #1d4ed8; border-radius: 20px; font-size: 12px; color: #93c5fd; }
+        .warn { font-size: 12px; color: #f59e0b; margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔑 License Generator</h1>
+        <div class="badge">Admin Tool — Keep Private!</div>
+
+        <div class="form-group">
+            <label>Device ID (from user's app)</label>
+            <input type="text" id="deviceId" placeholder="Paste Client's Device ID here" />
+        </div>
+
+        <div class="form-group">
+            <label>Plan / Duration</label>
+            <select id="limit">
+                <optgroup label="⏰ Hourly Plans (One-Time Use)">
+                    <option value="hour1">1 Hour Unlimited ⚡</option>
+                    <option value="hour2">2 Hour Unlimited ⚡</option>
+                </optgroup>
+                <optgroup label="📅 Daily / Weekly / Monthly">
+                    <option value="300">Daily Unlimited (24h)</option>
+                    <option value="week">Weekly Unlimited (7 Days)</option>
+                    <option value="month">Monthly Unlimited (30 Days)</option>
+                </optgroup>
+                <optgroup label="📸 Screenshot-Based">
+                    <option value="5">Basic (5 Screenshots)</option>
+                    <option value="10">Standard (10 Screenshots)</option>
+                    <option value="15">Plus (15 Screenshots)</option>
+                    <option value="50">Pro (50 Screenshots)</option>
+                    <option value="100">Elite (100 Screenshots)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Key Validity (Days) — Used for date-based expiry</label>
+            <input type="number" id="days" value="365" min="1" />
+        </div>
+
+        <button onclick="generate()">Generate License Key</button>
+        <p class="warn">⚠️ Hourly keys are ONE-TIME USE. Once they expire, the key is permanently burned and cannot be reused.</p>
+
+        <div id="result">
+            <label style="margin-top:20px; display:block;">Generated Key:</label>
+            <div class="key-display" id="keyOutput"></div>
+            <button class="copy-btn" onclick="copyKey()">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        const SALT = 'SECRET_SALT_2025';
+
+        const TIERS = {
+            '5':     'LIM5',
+            '10':    'NM10',
+            '15':    'NM15',
+            '50':    'NM50',
+            '100':   'N100',
+            '300':   'DALY',
+            'week':  'WEEK',
+            'month': 'MNTH',
+            'hour1': 'HR01',
+            'hour2': 'HR02'
+        };
+
+        function generate() {
+            const deviceId = document.getElementById('deviceId').value.trim();
+            const limit = document.getElementById('limit').value;
+            const days = parseInt(document.getElementById('days').value) || 365;
+
+            if (!deviceId) { alert('Please enter a Device ID'); return; }
+
+            const tierCode = TIERS[limit];
+            const deviceHash = deviceId.substring(0, 8).toUpperCase();
+
+            // Calculate expiry date
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            const expiry = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+
+            // Generate Checksum (matches licenseManager.js logic exactly)
+            const combined = `${tierCode}${deviceHash}${expiry}${SALT}`;
+            let hash = 0;
+            for (let i = 0; i < combined.length; i++) {
+                const char = combined.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            const checksum = Math.abs(hash).toString(36).substring(0, 4).toUpperCase();
+            const key = `${tierCode}-${deviceHash}-${expiry}-${checksum}`;
+
+            document.getElementById('keyOutput').textContent = key;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function copyKey() {
+            const key = document.getElementById('keyOutput').textContent;
+            navigator.clipboard.writeText(key).then(() => alert('✅ Copied!'));
+        }
+    </script>
+</body>
+</html>

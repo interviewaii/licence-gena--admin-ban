@@ -1,0 +1,15 @@
+{
+  "daily_price": "4900",
+  "weekly_price": "19900",
+  "monthly_price": "49900",
+  "razorpay_mode": "test",
+  "razorpay_test_key_id": "",
+  "razorpay_test_key_secret": "",
+  "razorpay_live_key_id": "",
+  "razorpay_live_key_secret": "",
+  "demo_download_url": "https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.1/Interview-AI-Setup.exe",
+  "pro_download_url": "https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.0-pro/Interview-Pro-version.exe",
+  "elite_download_url": "https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.0-pro/Interview-Elite-version.exe",
+  "default_currency": "USD",
+  "exchange_rate": "85"
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "userId": 2,
+    "licenseKey": "WEEK-BD3F11CD-20251224-E4U3",
+    "tier": "Weekly Plan",
+    "deviceId": "BD3F11CD",
+    "expiryDate": "2025-12-24T10:19:18.748Z",
+    "status": "active",
+    "createdAt": "2025-12-17T10:19:18.753Z"
+  },
+  {
+    "id": 2,
+    "userId": 3,
+    "licenseKey": "DALY-BD3F11CD-20251218-RJKI",
+    "tier": "Daily Plan",
+    "deviceId": "BD3F11CD",
+    "expiryDate": "2025-12-18T14:53:00.187Z",
+    "status": "active",
+    "createdAt": "2025-12-17T14:53:00.196Z"
+  },
+  {
+    "id": 3,
+    "userId": 4,
+    "licenseKey": "WEEK-1AB9A711-20251225-FSUR",
+    "tier": "Weekly Plan",
+    "deviceId": "1AB9A711",
+    "expiryDate": "2025-12-24T19:44:15.542Z",
+    "status": "active",
+    "createdAt": "2025-12-17T19:44:15.554Z"
+  }
+]

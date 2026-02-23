@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Interview Round AI</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">⚙️ Interview Round AI - Admin Panel</div>
+                <a href="/" class="btn btn-secondary">← Back to Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 40px;">
+        <!-- Login Section -->
+        <div id="loginSection" style="max-width: 400px; margin: 80px auto;">
+            <div class="card">
+                <h2 style="margin-bottom: 30px; text-align: center;">Admin Login</h2>
+
+                <div class="alert alert-info" style="margin-bottom: 20px;">
+                    Default: <strong>admin</strong> / <strong>admin123</strong>
+                </div>
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="admin" value="admin">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="admin123">
+                </div>
+
+                <div id="loginError" class="alert alert-error hidden"></div>
+
+                <button class="btn btn-primary" style="width: 100%;" onclick="login()">
+                    🔐 Login
+                </button>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminSection" class="hidden">
+            <!-- Dashboard Controls -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="btn-group" style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary active-filter" onclick="filterData('all')" id="btnAll">All
+                            Time</button>
+                        <button class="btn btn-secondary" onclick="filterData('today')" id="btnToday">Today</button>
+                        <button class="btn btn-secondary" onclick="filterData('week')" id="btnWeek">This Week</button>
+                        <button class="btn btn-secondary" onclick="filterData('month')" id="btnMonth">This
+                            Month</button>
+                    </div>
+                    <select id="statusFilter" onchange="filterData(currentFilter)" class="btn btn-secondary"
+                        style="border: 1px solid rgba(255,255,255,0.1); cursor: pointer; height: 38px;">
+                        <option value="all" style="color: black;">All Statuses</option>
+                        <option value="success" style="color: black;">✅ Success</option>
+                        <option value="pending" style="color: black;">⏳ Pending</option>
+                        <option value="failed" style="color: black;">❌ Failed</option>
+                    </select>
+                </div>
+                <div class="btn-group" style="display: flex; gap: 10px;">
+                    <a href="/license-generator.html" class="btn btn-secondary" target="_blank">🔑 License Generator</a>
+                    <button class="btn btn-primary" onclick="exportToCSV()">
+                        📥 Export to Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pricing Management (Moved to Top) -->
+            <div class="card mb-20">
+                <h2 style="margin-bottom: 20px;">💰 Settings Management</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label>Daily Plan (₹)</label>
+                        <input type="number" id="priceDaily" placeholder="49">
+                        <small style="color: rgba(255,255,255,0.5);">Enter price in rupees</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Weekly Plan (₹)</label>
+                        <input type="number" id="priceWeekly" placeholder="199">
+                        <small style="color: rgba(255,255,255,0.5);">Enter price in rupees</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monthly Plan (₹)</label>
+                        <input type="number" id="priceMonthly" placeholder="499">
+                        <small style="color: rgba(255,255,255,0.5);">Enter price in rupees</small>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <h3 style="margin-bottom: 15px; font-size: 16px;">Download Links</h3>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Demo Download URL</label>
+                            <input type="text" id="demoUrl" placeholder="https://github.com/..." style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>Pro Download URL</label>
+                            <input type="text" id="proUrl" placeholder="https://github.com/..." style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>Elite Download URL</label>
+                            <input type="text" id="eliteUrl" placeholder="https://github.com/..." style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <h3 style="margin-bottom: 15px; font-size: 16px;">Currency Settings</h3>
+                    <div class="form-group">
+                        <label>Default Currency</label>
+                        <select id="defaultCurrency"
+                            style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 6px;">
+                            <option value="INR">INR (₹)</option>
+                            <option value="USD">USD ($)</option>
+                        </select>
+                        <small style="color: rgba(255,255,255,0.5);">Select the default currency for the website</small>
+                    </div>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>Exchange Rate (1 USD = ? INR)</label>
+                        <input type="number" id="exchangeRate" placeholder="85">
+                        <small style="color: rgba(255,255,255,0.5);">Set the conversion rate manually</small>
+                    </div>
+                </div>
+
+                <div id="pricingMessage" class="hidden"></div>
+
+                <button class="btn btn-primary" onclick="updatePricing()">
+                    💾 Save Settings
+                </button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card mb-20">
+                <h2 style="margin-bottom: 20px;">📊 Statistics <span id="statsLabel"
+                        style="font-size: 0.6em; opacity: 0.7; font-weight: normal;">(All Time)</span></h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div
+                        style="background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Total Users
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700;" id="statUsers">0</div>
+                    </div>
+
+                    <div
+                        style="background: rgba(33, 150, 243, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(33, 150, 243, 0.3);">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Active Licenses
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700;" id="statLicenses">0</div>
+                    </div>
+
+                    <div
+                        style="background: rgba(255, 152, 0, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 152, 0, 0.3);">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Total Revenue
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700;">₹<span id="statRevenue">0</span></div>
+                    </div>
+
+                    <div
+                        style="background: rgba(156, 39, 176, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(156, 39, 176, 0.3);">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Total
+                            Transactions</div>
+                        <div style="font-size: 32px; font-weight: 700;" id="statTransactions">0</div>
+                    </div>
+
+                    <div
+                        style="background: rgba(0, 188, 212, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 188, 212, 0.3);">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Demo Downloads
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700;" id="statDemoDownloads">0</div>
+                        <div style="font-size: 10px; opacity: 0.5;">(All Time)</div>
+                    </div>
+
+                    <div
+                        style="background: rgba(233, 30, 99, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(233, 30, 99, 0.3);">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Pro Downloads
+                        </div>
+                        <div style="font-size: 32px; font-weight: 700;" id="statProDownloads">0</div>
+                        <div style="font-size: 10px; opacity: 0.5;">(All Time)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Transactions -->
+            <div class="card mb-20">
+                <h2 style="margin-bottom: 20px;">💸 User Transactions</h2>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: rgba(255,255,255,0.05);">
+                                <th style="padding: 12px; text-align: left;">Date</th>
+                                <th style="padding: 12px; text-align: left;">User Name</th>
+                                <th style="padding: 12px; text-align: left;">User Email</th>
+                                <th style="padding: 12px; text-align: left;">Tier</th>
+                                <th style="padding: 12px; text-align: left;">Amount</th>
+                                <th style="padding: 12px; text-align: left;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- User data will be loaded here -->
+                            <tr>
+                                <td colspan="6"
+                                    style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination Controls -->
+                <div style="margin-top: 20px; text-align: center;">
+                    <button id="loadMoreBtn" class="btn btn-secondary hidden" onclick="loadMoreTransactions()">
+                        Load More
+                    </button>
+                    <div id="showingCount" style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.5);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Tools -->
+            <div class="card mb-20">
+                <h2 style="margin-bottom: 20px;">🛠️ System Tools</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div>
+                        <h3 style="margin-bottom: 10px;">Test Email</h3>
+                        <div class="form-group">
+                            <input type="email" id="testEmail" placeholder="your@email.com">
+                        </div>
+                        <button class="btn btn-secondary" onclick="sendTestEmail()">
+                            📧 Send Test Email
+                        </button>
+                        <div id="emailStatus" class="hidden" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <div>
+                        <h3 style="margin-bottom: 10px;">Database Status</h3>
+                        <button class="btn btn-secondary" onclick="checkDatabase()">
+                            💾 Check Database
+                        </button>
+                        <div id="dbStatus" style="margin-top: 10px; font-family: monospace; font-size: 12px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let loggedIn = false;
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Simple client-side check
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const correctUsername = 'admin';
+            const correctPassword = 'admin123';
+
+            if (username === correctUsername && password === correctPassword) {
+                loggedIn = true;
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('adminSection').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                const errorDiv = document.getElementById('loginError');
+                errorDiv.textContent = '❌ Invalid credentials';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        async function loadAdminData() {
+            // Load current pricing and settings
+            try {
+                const response = await fetch('/api/pricing');
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('priceDaily').value = (data.pricing.daily / 100).toFixed(0);
+                    document.getElementById('priceWeekly').value = (data.pricing.weekly / 100).toFixed(0);
+                    document.getElementById('priceMonthly').value = (data.pricing.monthly / 100).toFixed(0);
+
+                    if (data.pricing.demo_url) document.getElementById('demoUrl').value = data.pricing.demo_url;
+                    if (data.pricing.pro_url) document.getElementById('proUrl').value = data.pricing.pro_url;
+                    if (data.pricing.elite_url) document.getElementById('eliteUrl').value = data.pricing.elite_url;
+                    if (data.pricing.currency) document.getElementById('defaultCurrency').value = data.pricing.currency;
+                    if (data.pricing.exchange_rate) document.getElementById('exchangeRate').value = data.pricing.exchange_rate;
+                }
+            } catch (error) {
+                console.error('Failed to load pricing:', error);
+            }
+
+            // Load statistics
+            try {
+                const response = await fetch('/api/admin/stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    allTransactions = data.users; // Store all transactions
+
+                    // Set static download stats (not filtered by time currently)
+                    document.getElementById('statDemoDownloads').textContent = data.analytics.demo_downloads || 0;
+                    document.getElementById('statProDownloads').textContent = data.analytics.pro_downloads || 0;
+
+                    // Initial filter
+                    filterData('all');
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        function filterData(period) {
+            currentFilter = period;
+            currentPage = 1; // Reset pagination
+
+            // Update buttons
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                btn.classList.remove('active-filter');
+                btn.style.opacity = '0.7';
+                btn.style.border = '1px solid rgba(255,255,255,0.1)'; // Reset border
+            });
+            const activeBtn = document.getElementById('btn' + period.charAt(0).toUpperCase() + period.slice(1));
+            if (activeBtn) {
+                activeBtn.classList.add('active-filter');
+                activeBtn.style.opacity = '1';
+                activeBtn.style.border = '1px solid #4CAF50';
+            }
+
+            // Update Label
+            const labels = {
+                'all': '(All Time)',
+                'today': '(Today)',
+                'week': '(This Week)',
+                'month': '(This Month)'
+            };
+            document.getElementById('statsLabel').textContent = labels[period];
+
+            // Filter logic
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())).setHours(0, 0, 0, 0);
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+            // Get status filter value safely
+            const statusFilterEl = document.getElementById('statusFilter');
+            const statusFilter = statusFilterEl ? statusFilterEl.value : 'all';
+
+            filteredTransactions = allTransactions.filter(t => {
+                const tDate = new Date(t.createdAt).getTime();
+                let matchesTime = true;
+                if (period === 'today') matchesTime = tDate >= startOfDay;
+                if (period === 'week') matchesTime = tDate >= startOfWeek;
+                if (period === 'month') matchesTime = tDate >= startOfMonth;
+
+                let matchesStatus = true;
+                if (statusFilter !== 'all') {
+                    matchesStatus = (t.status === statusFilter);
+                }
+
+                return matchesTime && matchesStatus;
+            });
+
+            updateStatsUI();
+            renderTable();
+        }
+
+        function updateStatsUI() {
+            // Update stats cards based on filtered data
+            // Note: For revenue/users/licenses we might want to only count 'success' status
+            const successfulTransactions = filteredTransactions.filter(t => t.status === 'success');
+
+            document.getElementById('statUsers').textContent = successfulTransactions.length;
+            document.getElementById('statLicenses').textContent = successfulTransactions.length;
+            document.getElementById('statTransactions').textContent = filteredTransactions.length; // Count all attempts
+
+            const totalRevenue = successfulTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+            document.getElementById('statRevenue').textContent = (totalRevenue / 100).toLocaleString('en-IN');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('usersTableBody');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const showingCount = document.getElementById('showingCount');
+
+            if (filteredTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">No records found for this period</td></tr>';
+                loadMoreBtn.classList.add('hidden');
+                showingCount.textContent = '';
+                return;
+            }
+
+            // Sort by date desc
+            const sorted = [...filteredTransactions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            // Pagination logic
+            const showCount = currentPage * itemsPerPage;
+            const visibleItems = sorted.slice(0, showCount);
+
+            tbody.innerHTML = visibleItems.map(user => {
+                let statusColor = '#ff9800'; // Pending (Orange)
+                if (user.status === 'success') statusColor = '#4caf50'; // Success (Green)
+                if (user.status === 'failed') statusColor = '#f44336'; // Failed (Red)
+
+                return `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 12px;">${new Date(user.createdAt).toLocaleDateString()} ${new Date(user.createdAt).toLocaleTimeString()}</td>
+                        <td style="padding: 12px;">${user.userName || user.name || 'Guest'}</td>
+                        <td style="padding: 12px;">${user.userEmail || user.email || 'N/A'}</td>
+                        <td style="padding: 12px;">${user.tier || 'Unknown'}</td>
+                        <td style="padding: 12px;">₹${(user.amount / 100).toFixed(2)}</td>
+                        <td style="padding: 12px;">
+                            <span style="background: ${statusColor}20; color: ${statusColor}; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; border: 1px solid ${statusColor}40;">
+                                ${user.status ? user.status.toUpperCase() : 'PENDING'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update Load More button
+            if (showCount < sorted.length) {
+                loadMoreBtn.classList.remove('hidden');
+                showingCount.textContent = `Showing ${visibleItems.length} of ${sorted.length} transactions`;
+            } else {
+                loadMoreBtn.classList.add('hidden');
+                showingCount.textContent = `Showing all ${sorted.length} transactions`;
+            }
+        }
+
+        function loadMoreTransactions() {
+            currentPage++;
+            renderTable();
+        }
+
+        function exportToCSV() {
+            if (filteredTransactions.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            // Create CSV content
+            const headers = ['Date', 'Time', 'User Name', 'User Email', 'Tier', 'Amount (INR)', 'Status'];
+            const rows = filteredTransactions.map(t => [
+                new Date(t.createdAt).toLocaleDateString(),
+                new Date(t.createdAt).toLocaleTimeString(),
+                `"${t.userName || t.name || 'Guest'}"`,
+                `"${t.userEmail || t.email || 'N/A'}"`,
+                t.tier || 'Unknown',
+                (t.amount / 100).toFixed(2),
+                t.status || 'pending'
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(r => r.join(','))
+            ].join('\n');
+
+            // Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `transactions_${currentFilter}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function updatePricing() {
+            const daily = parseInt(document.getElementById('priceDaily').value) * 100;
+            const weekly = parseInt(document.getElementById('priceWeekly').value) * 100;
+            const monthly = parseInt(document.getElementById('priceMonthly').value) * 100;
+            const demo_url = document.getElementById('demoUrl').value;
+            const pro_url = document.getElementById('proUrl').value;
+            const elite_url = document.getElementById('eliteUrl').value;
+            const currency = document.getElementById('defaultCurrency').value;
+            const exchange_rate = document.getElementById('exchangeRate').value;
+
+            if (!daily || !weekly || !monthly) {
+                const messageDiv = document.getElementById('pricingMessage');
+                messageDiv.className = 'alert alert-error';
+                messageDiv.textContent = '❌ Please enter valid prices for all plans';
+                messageDiv.classList.remove('hidden');
+                return;
+            }
+
+            const messageDiv = document.getElementById('pricingMessage');
+            messageDiv.className = 'alert alert-info';
+            messageDiv.textContent = '💾 Updating settings...';
+            messageDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/admin/update-pricing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ daily, weekly, monthly, demo_url, pro_url, elite_url, currency, exchange_rate })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    messageDiv.className = 'alert alert-success';
+                    messageDiv.textContent = '✅ Settings updated successfully! Changes are live immediately.';
+                } else {
+                    throw new Error(data.error || 'Failed to update settings');
+                }
+            } catch (error) {
+                messageDiv.className = 'alert alert-error';
+                messageDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        async function sendTestEmail() {
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+
+            const statusDiv = document.getElementById('emailStatus');
+            statusDiv.className = 'alert alert-info';
+            statusDiv.textContent = '📧 Sending test email...';
+            statusDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/test-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusDiv.className = 'alert alert-success';
+                    statusDiv.textContent = '✅ Test email sent! Check your inbox.';
+                } else {
+                    statusDiv.className = 'alert alert-error';
+                    statusDiv.textContent = '❌ Failed to send email. Check EMAIL_USER and EMAIL_PASS in .env';
+                }
+            } catch (error) {
+                statusDiv.className = 'alert alert-error';
+                statusDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        async function checkDatabase() {
+            const statusDiv = document.getElementById('dbStatus');
+            statusDiv.textContent = 'Checking...';
+
+            try {
+                const response = await fetch('/api/test-db');
+                const data = await response.json();
+
+                statusDiv.innerHTML = `<span style="color: #4caf50;">✅ Database Working!</span><br>
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; color: rgba(255,255,255,0.7);">View Settings</summary>
+                        <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-top: 10px; overflow-x: auto;">${JSON.stringify(data.currentSettings, null, 2)}</pre>
+                    </details>`;
+            } catch (error) {
+                statusDiv.innerHTML = `<span style="color: #f44336;">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Allow Enter key to login
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('password').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') login();
+            });
+        });
+    </script>
+</body>
+
+</html>
