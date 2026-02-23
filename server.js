@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
-const { initializeDatabase, userOps, licenseOps, transactionOps, settingsOps, analyticsOps } = require('./database');
+const { initializeDatabase, userOps, licenseOps, transactionOps, settingsOps, analyticsOps, deviceOps } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -220,6 +220,14 @@ app.post('/api/license/activate', (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing licenseKey or deviceId' });
         }
 
+        // Check if device is banned
+        if (deviceOps.isBanned(deviceId)) {
+            return res.status(403).json({
+                success: false,
+                error: 'Your device has been banned from using this service. Please contact support.'
+            });
+        }
+
         // Check if this key has already been activated in the database
         const existing = licenseOps.findByKey(licenseKey);
 
@@ -346,9 +354,18 @@ app.post('/api/admin/unban-license', (req, res) => {
 // ── APP: Check if a license key is still valid (not banned) ──
 app.post('/api/license/check', (req, res) => {
     try {
-        const { licenseKey } = req.body;
+        const { licenseKey, deviceId } = req.body;
         if (!licenseKey) {
             return res.status(400).json({ success: false, error: 'Missing licenseKey' });
+        }
+
+        // Check if device is banned (if deviceId provided)
+        if (deviceId && deviceOps.isBanned(deviceId)) {
+            return res.json({
+                success: true,
+                status: 'banned',
+                message: 'Your device has been banned from using this service.'
+            });
         }
 
         const license = licenseOps.findByKey(licenseKey);
@@ -374,6 +391,58 @@ app.get('/api/admin/licenses', (req, res) => {
     try {
         const licenses = licenseOps.getAll();
         res.json({ success: true, licenses });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ── ADMIN: Ban a Device ID ──
+app.post('/api/admin/ban-device', (req, res) => {
+    try {
+        const { deviceId } = req.body;
+        if (!deviceId) {
+            return res.status(400).json({ success: false, error: 'Missing deviceId' });
+        }
+
+        deviceOps.ban(deviceId);
+        console.log('🚫 Device banned:', deviceId);
+
+        res.json({
+            success: true,
+            message: `Device ${deviceId} has been banned.`
+        });
+    } catch (error) {
+        console.error('Ban device error:', error);
+        res.status(500).json({ success: false, error: 'Internal server error.' });
+    }
+});
+
+// ── ADMIN: Unban a Device ID ──
+app.post('/api/admin/unban-device', (req, res) => {
+    try {
+        const { deviceId } = req.body;
+        if (!deviceId) {
+            return res.status(400).json({ success: false, error: 'Missing deviceId' });
+        }
+
+        deviceOps.unban(deviceId);
+        console.log('✅ Device unbanned:', deviceId);
+
+        res.json({
+            success: true,
+            message: `Device ${deviceId} has been unbanned.`
+        });
+    } catch (error) {
+        console.error('Unban device error:', error);
+        res.status(500).json({ success: false, error: 'Internal server error.' });
+    }
+});
+
+// ── ADMIN: List Banned Devices ──
+app.get('/api/admin/banned-devices', (req, res) => {
+    try {
+        const banned = deviceOps.getAllBanned();
+        res.json({ success: true, banned });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

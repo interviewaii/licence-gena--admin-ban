@@ -257,6 +257,33 @@
                 </div>
             </div>
 
+            <!-- Device Blacklist (NEW) -->
+            <div class="card mb-20">
+                <h2 style="margin-bottom: 20px;">🚫 Device Blacklist</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="banDeviceId" placeholder="Enter Device ID (e.g. ABCD1234)" style="flex: 1;">
+                    <button class="btn btn-error" onclick="banDevice()">🚫 Ban Device</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: rgba(255,255,255,0.05);">
+                                <th style="padding: 12px; text-align: left;">Device ID</th>
+                                <th style="padding: 12px; text-align: left;">Status</th>
+                                <th style="padding: 12px; text-align: left;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deviceTableBody">
+                            <tr>
+                                <td colspan="3"
+                                    style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">No devices
+                                    banned.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- System Tools -->
             <div class="card mb-20">
                 <h2 style="margin-bottom: 20px;">🛠️ System Tools</h2>
@@ -355,6 +382,9 @@
 
             // Load Licenses (NEW)
             loadLicenses();
+
+            // Load Banned Devices (NEW)
+            loadBannedDevices();
         }
 
         async function loadLicenses() {
@@ -425,6 +455,87 @@
                 }
             } catch (error) {
                 alert(`❌ Network error: ${error.message}`);
+            }
+        }
+
+        async function loadBannedDevices() {
+            const tbody = document.getElementById('deviceTableBody');
+            try {
+                const response = await fetch('/api/admin/banned-devices');
+                const data = await response.json();
+
+                if (data.success && data.banned) {
+                    if (data.banned.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">No devices banned.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = data.banned.map(deviceId => `
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 12px; font-family: monospace;">${deviceId}</td>
+                            <td style="padding: 12px;">
+                                <span style="background: #f4433620; color: #f44336; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; border: 1px solid #f4433640;">
+                                    BANNED
+                                </span>
+                            </td>
+                            <td style="padding: 12px;">
+                                <button class="btn btn-secondary" 
+                                        style="padding: 4px 12px; font-size: 12px; background: #4caf5020; color: #4caf50;"
+                                        onclick="unbanDevice('${deviceId}')">
+                                    ✅ Unban
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load banned devices:', error);
+            }
+        }
+
+        async function banDevice() {
+            const deviceId = document.getElementById('banDeviceId').value.trim();
+            if (!deviceId) return alert('Please enter a Device ID');
+
+            if (!confirm(`Are you sure you want to ban this device ID?\n\n${deviceId}`)) return;
+
+            try {
+                const response = await fetch('/api/admin/ban-device', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Device banned successfully!');
+                    document.getElementById('banDeviceId').value = '';
+                    loadBannedDevices();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function unbanDevice(deviceId) {
+            if (!confirm(`Are you sure you want to unban this device?\n${deviceId}`)) return;
+
+            try {
+                const response = await fetch('/api/admin/unban-device', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deviceId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Device unbanned successfully!');
+                    loadBannedDevices();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
             }
         }
 

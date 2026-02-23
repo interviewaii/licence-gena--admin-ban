@@ -69,7 +69,8 @@ function initializeDatabase() {
         pro_download_url: 'https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.0-pro/Interview-Pro-version.exe',
         elite_download_url: 'https://github.com/ashu-glitech/interview-ai-demo.exe/releases/download/v1.0.0-pro/Interview-Elite-version.exe',
         default_currency: 'INR',
-        exchange_rate: '85'
+        exchange_rate: '85',
+        banned_devices: '[]'
     };
 
     const existingSettings = readJSON(SETTINGS_FILE, defaultSettings);
@@ -267,11 +268,55 @@ const analyticsOps = {
     }
 };
 
+// Device operations
+const deviceOps = {
+    isBanned: (deviceId) => {
+        try {
+            const bannedStr = settingsOps.get('banned_devices') || '[]';
+            const banned = JSON.parse(bannedStr);
+            return banned.includes(deviceId);
+        } catch { return false; }
+    },
+
+    ban: (deviceId) => {
+        try {
+            const bannedStr = settingsOps.get('banned_devices') || '[]';
+            const banned = JSON.parse(bannedStr);
+            if (!banned.includes(deviceId)) {
+                banned.push(deviceId);
+                settingsOps.set('banned_devices', JSON.stringify(banned));
+            }
+            return true;
+        } catch { return false; }
+    },
+
+    unban: (deviceId) => {
+        try {
+            const bannedStr = settingsOps.get('banned_devices') || '[]';
+            const banned = JSON.parse(bannedStr);
+            const index = banned.indexOf(deviceId);
+            if (index !== -1) {
+                banned.splice(index, 1);
+                settingsOps.set('banned_devices', JSON.stringify(banned));
+            }
+            return true;
+        } catch { return false; }
+    },
+
+    getAllBanned: () => {
+        try {
+            const bannedStr = settingsOps.get('banned_devices') || '[]';
+            return JSON.parse(bannedStr);
+        } catch { return []; }
+    }
+};
+
 module.exports = {
     initializeDatabase,
     userOps,
     licenseOps,
     transactionOps,
     settingsOps,
-    analyticsOps
+    analyticsOps,
+    deviceOps
 };
