@@ -370,13 +370,23 @@ app.post('/api/license/check', (req, res) => {
 
         const license = licenseOps.findByKey(licenseKey);
 
-        // Key not in DB = assume valid (local-only activation)
+        // Key not in DB = check if device is banned globally
         if (!license) {
+            // If deviceId was provided, check device ban even for unknown keys
+            if (deviceId && deviceOps.isBanned(deviceId)) {
+                return res.json({ success: true, status: 'banned', message: 'Your device has been banned from using this service.' });
+            }
             return res.json({ success: true, status: 'active' });
         }
 
+        // Check if the license key itself is banned
         if (license.status === 'banned') {
             return res.json({ success: true, status: 'banned', message: 'This license has been banned by the administrator.' });
+        }
+
+        // Check if the original device that activated the key is now banned
+        if (license.deviceId && deviceOps.isBanned(license.deviceId)) {
+            return res.json({ success: true, status: 'banned', message: 'Your device has been banned from using this service.' });
         }
 
         return res.json({ success: true, status: license.status });
@@ -404,12 +414,31 @@ app.post('/api/admin/ban-device', (req, res) => {
             return res.status(400).json({ success: false, error: 'Missing deviceId' });
         }
 
+        // 1. Add device to blacklist
         deviceOps.ban(deviceId);
-        console.log('🚫 Device banned:', deviceId);
+
+        // 2. Also ban ALL license keys tied to this device (prefix match)
+        const allLicenses = licenseOps.getAll();
+        let bannedKeys = [];
+        for (const license of allLicenses) {
+            if (license.deviceId) {
+                const storedUpper = license.deviceId.toUpperCase();
+                const inputUpper = deviceId.toUpperCase();
+                // Prefix match: either 8-char matches, or full match
+                if (storedUpper.startsWith(inputUpper) || inputUpper.startsWith(storedUpper.substring(0, 8))) {
+                    licenseOps.updateStatus(license.licenseKey, 'banned');
+                    bannedKeys.push(license.licenseKey);
+                }
+            }
+        }
+
+        console.log(`🚫 Device banned: ${deviceId} | Also banned ${bannedKeys.length} license(s)`);
 
         res.json({
             success: true,
-            message: `Device ${deviceId} has been banned.`
+            message: `Device ${deviceId} has been banned.`,
+            bannedLicenses: bannedKeys.length,
+            keys: bannedKeys
         });
     } catch (error) {
         console.error('Ban device error:', error);

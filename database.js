@@ -270,11 +270,21 @@ const analyticsOps = {
 
 // Device operations
 const deviceOps = {
+    // Check if a device is banned — supports full hash OR 8-char display ID (prefix match)
     isBanned: (deviceId) => {
         try {
             const bannedStr = settingsOps.get('banned_devices') || '[]';
             const banned = JSON.parse(bannedStr);
-            return banned.includes(deviceId);
+            const idLower = deviceId.toLowerCase();
+            const idUpper = deviceId.toUpperCase();
+            return banned.some(b => {
+                const bLower = b.toLowerCase();
+                const bUpper = b.toUpperCase();
+                // Exact match OR prefix match (8-char display ID vs full hash)
+                return bLower === idLower ||
+                    bUpper.startsWith(idUpper) ||
+                    idUpper.startsWith(bUpper.substring(0, 8));
+            });
         } catch { return false; }
     },
 
@@ -282,7 +292,9 @@ const deviceOps = {
         try {
             const bannedStr = settingsOps.get('banned_devices') || '[]';
             const banned = JSON.parse(bannedStr);
-            if (!banned.includes(deviceId)) {
+            // Prevent duplicate (case-insensitive)
+            const idLower = deviceId.toLowerCase();
+            if (!banned.some(b => b.toLowerCase() === idLower)) {
                 banned.push(deviceId);
                 settingsOps.set('banned_devices', JSON.stringify(banned));
             }
@@ -294,11 +306,14 @@ const deviceOps = {
         try {
             const bannedStr = settingsOps.get('banned_devices') || '[]';
             const banned = JSON.parse(bannedStr);
-            const index = banned.indexOf(deviceId);
-            if (index !== -1) {
-                banned.splice(index, 1);
-                settingsOps.set('banned_devices', JSON.stringify(banned));
-            }
+            const idLower = deviceId.toLowerCase();
+            const filtered = banned.filter(b => {
+                const bLower = b.toLowerCase();
+                return bLower !== idLower &&
+                    !bLower.startsWith(idLower) &&
+                    !idLower.startsWith(bLower.substring(0, 8));
+            });
+            settingsOps.set('banned_devices', JSON.stringify(filtered));
             return true;
         } catch { return false; }
     },
